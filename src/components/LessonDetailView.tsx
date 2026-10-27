@@ -5,6 +5,9 @@ import TokenCalculatorLab from './labs/TokenCalculatorLab';
 import NckhPromptBuilderLab from './labs/NckhPromptBuilderLab';
 import ReadinessChecklistLab from './labs/ReadinessChecklistLab';
 import DeployConfigGeneratorLab from './labs/DeployConfigGeneratorLab';
+import AiStudioLoginGuide from './labs/AiStudioLoginGuide';
+import VerificationChecklistLab from './labs/VerificationChecklistLab';
+import GuidedPracticeLab from './labs/GuidedPracticeLab';
 import {
   ArrowLeft,
   ArrowRight,
@@ -55,9 +58,15 @@ export default function LessonDetailView({
       case 'nckh-prompt-builder':
         return <NckhPromptBuilderLab />;
       case 'readiness-checklist':
-        return <ReadinessChecklistLab />;
+        return <ReadinessChecklistLab track={selectedTrack} />;
       case 'deploy-generator':
         return <DeployConfigGeneratorLab />;
+      case 'ai-studio-login':
+        return <AiStudioLoginGuide />;
+      case 'verification-checklist':
+        return <VerificationChecklistLab />;
+      case 'guided-practice':
+        return <GuidedPracticeLab track={selectedTrack} />;
       default:
         return null;
     }
@@ -72,7 +81,7 @@ export default function LessonDetailView({
           className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-2 transition"
         >
           <ArrowLeft className="w-4 h-4 text-slate-500" />
-          <span>Quay lại Lộ trình</span>
+          <span>Quay lại 5 bước</span>
         </button>
 
         <div className="flex items-center gap-2.5">
@@ -81,7 +90,7 @@ export default function LessonDetailView({
           </span>
 
           <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
-            Chặng {lesson.stepNumber}
+            Bước {lesson.stepNumber}
           </span>
 
           <button
@@ -162,8 +171,36 @@ export default function LessonDetailView({
         dangerouslySetInnerHTML={{ __html: lesson.contentHtml }}
       />
 
-      {/* Interactive Tool Widget (No API key needed!) */}
+      {lesson.references && lesson.references.length > 0 && (
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Nguồn kiểm chứng</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {lesson.references.map((reference) => (
+              <a
+                key={reference.url}
+                href={reference.url}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 hover:border-blue-300"
+              >
+                {reference.label} ↗
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Interactive educational widget; simulations are clearly labeled */}
       {renderTool()}
+
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+        <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">Hoàn thành bài khi bạn có thể</p>
+        <div className="mt-2 grid gap-2 text-xs leading-relaxed text-emerald-950 md:grid-cols-3">
+          <span className="rounded-lg bg-white/80 p-2.5">1. Giải thích lại điểm chính bằng lời của mình.</span>
+          <span className="rounded-lg bg-white/80 p-2.5">2. Thực hiện được thao tác chính của bài.</span>
+          <span className="rounded-lg bg-white/80 p-2.5">3. Biết điều gì cần kiểm tra trước khi sang bước tiếp theo.</span>
+        </div>
+      </div>
 
       {/* Bottom Navigation */}
       <div className="flex items-center justify-between pt-6 border-t border-slate-200">

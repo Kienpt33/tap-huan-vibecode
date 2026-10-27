@@ -1,301 +1,151 @@
-import React, { useState } from 'react';
-import { Copy, Check, FileText } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Check, Copy, FileText } from 'lucide-react';
+import { CompetitionTrack } from '../../types';
 
-export default function NckhPromptBuilderLab() {
-  const [track, setTrack] = useState<'nckh' | 'tech'>('nckh');
-  const [selectedTopic, setSelectedTopic] = useState('water');
+const PRESETS = {
+  nckh: [
+    {
+      label: 'Theo dõi cây',
+      name: 'Nhật ký theo dõi sự phát triển của cây đậu',
+      input: 'Ngày đo, tên cây và chiều cao tính bằng cm',
+      features: 'Nhập số liệu, xem bảng và vẽ biểu đồ chiều cao theo ngày'
+    },
+    {
+      label: 'Đọc sách',
+      name: 'Bảng theo dõi thói quen đọc sách của lớp',
+      input: 'Mã học sinh ẩn danh, tên sách và số phút đọc',
+      features: 'Thêm lượt đọc, xem tổng số phút và biểu đồ theo tuần'
+    },
+    {
+      label: 'Phân loại rác',
+      name: 'Thống kê rác tái chế trong lớp học',
+      input: 'Ngày, loại rác và số lượng',
+      features: 'Nhập số lượng, tính tổng và vẽ biểu đồ theo loại rác'
+    }
+  ],
+  tech: [
+    {
+      label: 'Tưới cây',
+      name: 'Bảng điều khiển mô phỏng tưới cây',
+      input: 'Độ ẩm đất từ 0 đến 100%',
+      features: 'Hiển thị độ ẩm và nút bật/tắt máy bơm ở chế độ demo'
+    },
+    {
+      label: 'Thùng rác',
+      name: 'Mô phỏng thùng rác thông minh',
+      input: 'Mức đầy của thùng từ 0 đến 100%',
+      features: 'Hiển thị mức đầy và cảnh báo khi vượt 80%'
+    },
+    {
+      label: 'Thư viện lớp',
+      name: 'Bộ đếm sách mượn trong lớp',
+      input: 'Tên sách, ngày mượn và trạng thái đã trả/chưa trả',
+      features: 'Thêm lượt mượn, đổi trạng thái và đếm số sách chưa trả'
+    }
+  ]
+} satisfies Record<CompetitionTrack, Array<{ label: string; name: string; input: string; features: string }>>;
 
-  const [teamProjectName, setTeamProjectName] = useState(
-    'Khảo sát chất lượng nước mặt và nồng độ ô nhiễm sinh hoạt tại địa phương'
-  );
-  const [dataInputs, setDataInputs] = useState(
-    'File số liệu 50 mẫu đo: pH, Oxy hòa tan (DO mg/L), Độ đục (NTU), 5 điểm lấy mẫu'
-  );
-  const [keyOutput, setKeyOutput] = useState(
-    'Bảng tra cứu lọc mẫu theo ngày, tính trung bình và vẽ biểu đồ đường so sánh với ngưỡng QCVN 08-MT:2015'
-  );
+export default function NckhPromptBuilderLab({ initialTrack = 'nckh' }: { initialTrack?: CompetitionTrack }) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [projectName, setProjectName] = useState('');
+  const [dataInput, setDataInput] = useState('');
+  const [features, setFeatures] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const presetsNCKH: Record<string, { name: string; inputs: string; output: string }> = {
-    water: {
-      name: 'Đánh giá chất lượng nước sinh hoạt và nồng độ ô nhiễm tại địa phương',
-      inputs: '50 mẫu đo các chỉ số: pH (6.5-8.5), DO (mg/L), Độ đục (NTU) tại 5 trạm',
-      output: 'Biểu đồ đường biến thiên theo tuần và bảng đối chiếu với tiêu chuẩn nước mặt QCVN',
-    },
-    sleep: {
-      name: 'Khảo sát ảnh hưởng của thời gian dùng màn hình điện thoại đến chất lượng giấc ngủ học sinh',
-      inputs: 'Khảo sát 120 học sinh THCS: Số giờ dùng điện thoại, Số giờ ngủ/đêm, Mức độ tập trung (thang 1-10)',
-      output: 'Biểu đồ phân tán (Scatter plot) thể hiện mối tương quan và tính hệ số tương quan r',
-    },
-    herb: {
-      name: 'Nghiên cứu hoạt tính kháng khuẩn của dịch chiết lá bàng đối với vi khuẩn gây bệnh',
-      inputs: 'Đường kính vòng kháng khuẩn (mm) ở 4 nồng độ dịch chiết khác nhau (10%, 25%, 50%, 75%) qua 3 lần lặp lại',
-      output: 'Biểu đồ cột có thanh sai số (Error bars) và bảng so sánh với nhóm đối chứng',
-    },
+  const applyPreset = (index: number) => {
+    const preset = PRESETS[initialTrack][index];
+    setSelectedIndex(index);
+    setProjectName(preset.name);
+    setDataInput(preset.input);
+    setFeatures(preset.features);
   };
 
-  const presetsTech: Record<string, { name: string; inputs: string; output: string }> = {
-    tree: {
-      name: 'Hệ thống giám sát và tưới tiêu vườn trường thông minh',
-      inputs: 'Cảm biến độ ẩm đất (0 - 100%) và cảm biến nhiệt độ ngoài trời',
-      output: 'Đồng hồ kim đo độ ẩm, nút đóng/ngắt máy bơm thủ công và nút giả lập trời nắng hạn',
-    },
-    trash: {
-      name: 'Thùng rác phân loại thông minh học đường',
-      inputs: 'Cảm biến siêu âm đo mức đầy (cm) và nút bấm phân loại rác tái chế / hữu cơ',
-      output: 'Thẻ đếm số lượt bỏ rác, thanh đo phần trăm dung lượng và âm thanh cảm ơn',
-    },
-    light: {
-      name: 'Hệ thống đèn bàn học thông minh tự động điều chỉnh ánh sáng',
-      inputs: 'Cảm biến cường độ ánh sáng (Lux) và cảm biến khoảng cách ngồi học (cm)',
-      output: 'Cảnh báo khi học sinh cúi quá gần bàn (<25cm) và tự động tăng độ sáng đèn',
-    },
-  };
+  useEffect(() => {
+    const preset = PRESETS[initialTrack][0];
+    setSelectedIndex(0);
+    setProjectName(preset.name);
+    setDataInput(preset.input);
+    setFeatures(preset.features);
+  }, [initialTrack]);
 
-  const handleSelectTrack = (newTrack: 'nckh' | 'tech') => {
-    setTrack(newTrack);
-    if (newTrack === 'nckh') {
-      setSelectedTopic('water');
-      const p = presetsNCKH['water'];
-      setTeamProjectName(p.name);
-      setDataInputs(p.inputs);
-      setKeyOutput(p.output);
-    } else {
-      setSelectedTopic('tree');
-      const p = presetsTech['tree'];
-      setTeamProjectName(p.name);
-      setDataInputs(p.inputs);
-      setKeyOutput(p.output);
-    }
-  };
+  const generatedPrompt = useMemo(() => {
+    const safetyLine = initialTrack === 'tech'
+      ? 'Đây là bản mô phỏng. Không kết nối hoặc điều khiển thiết bị thật.'
+      : 'Không tự tạo thêm số liệu và không gửi dữ liệu lên máy chủ.';
 
-  const handleSelectPreset = (key: string) => {
-    setSelectedTopic(key);
-    const p = track === 'nckh' ? presetsNCKH[key] : presetsTech[key];
-    if (p) {
-      setTeamProjectName(p.name);
-      setDataInputs(p.inputs);
-      setKeyOutput(p.output);
-    }
-  };
+    return `Tôi là giáo viên tiểu học.
 
-  const generatedPrompt =
-    track === 'nckh'
-      ? `Tôi đang chuẩn bị đề tài dự thi Nghiên Cứu Khoa Học:
-"${teamProjectName}".
+Hãy tạo một ứng dụng web có tên: “${projectName}”.
 
-Yêu cầu AI viết ứng dụng web phân tích số liệu thực nghiệm:
-1. Dữ liệu đầu vào: ${dataInputs}.
-2. Tính năng phân tích & hiển thị: ${keyOutput}.
-3. Tích hợp tính năng cho Hội đồng Giám khảo chọn lọc xem từng mẫu hoặc ngày đo trực tiếp trên web.
-4. Giao diện trang nhã, biểu đồ khoa học rõ ràng, ghi rõ đơn vị đo trên các trục tọa độ.
+Dữ liệu tôi có:
+- ${dataInput}.
 
-Hãy viết mã nguồn hoàn chỉnh bằng React và Tailwind CSS.`
-      : `Tôi đang chuẩn bị đề tài dự thi Công Nghệ Kỹ Thuật:
-"${teamProjectName}".
+Ứng dụng cần làm được:
+- ${features}.
 
-Yêu cầu AI viết giao diện Dashboard điều khiển thiết bị:
-1. Thông số cảm biến & thiết bị: ${dataInputs}.
-2. Tính năng hiển thị & điều khiển: ${keyOutput}.
-3. Tích hợp 1 nút bấm "Giả lập sự cố khẩn cấp" để Ban Giám Khảo bấm thử và quan sát cơ chế phản ứng của hệ thống.
-4. Giao diện trực quan, nút bấm to rõ ràng, tương thích trên điện thoại thông minh.
+Yêu cầu:
+- Giao diện bằng tiếng Việt, chữ dễ đọc, nút bấm rõ ràng.
+- Có sẵn vài dòng dữ liệu giả để tôi chạy thử.
+- ${safetyLine}
+- Nếu còn thiếu thông tin, hãy hỏi tôi trước khi tạo.
+- Sau khi hoàn thành, giải thích cách sử dụng và đưa ra 5 tình huống để kiểm tra.`;
+  }, [dataInput, features, initialTrack, projectName]);
 
-Hãy viết mã nguồn hoàn chỉnh bằng React và Tailwind CSS.`;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(generatedPrompt);
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(generatedPrompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200 my-6 shadow-2xs">
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200">
+    <div className="my-6 min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
         <div>
-          <h4 className="font-semibold text-slate-900 text-sm">
-            Công cụ tạo câu lệnh yêu cầu (Prompt Generator) cho đề tài dự thi
-          </h4>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Lựa chọn bảng thi và đề tài mẫu để tạo câu lệnh đặc tả chuẩn cho AI
-          </p>
+          <h4 className="text-sm font-bold text-slate-900">Tạo prompt đầu tiên</h4>
+          <p className="mt-1 text-xs text-slate-500">Chọn ví dụ gần với ý tưởng của bạn, sau đó sửa ba ô bên dưới.</p>
         </div>
-
-        {/* Track switch buttons */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
-          <button
-            type="button"
-            onClick={() => handleSelectTrack('nckh')}
-            className={`px-2.5 py-1 rounded text-xs font-semibold transition ${
-              track === 'nckh' ? 'bg-white text-blue-700 shadow-2xs' : 'text-slate-600'
-            }`}
-          >
-            🔬 Bảng NCKH
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSelectTrack('tech')}
-            className={`px-2.5 py-1 rounded text-xs font-semibold transition ${
-              track === 'tech' ? 'bg-white text-blue-700 shadow-2xs' : 'text-slate-600'
-            }`}
-          >
-            ⚙️ Bảng Kỹ Thuật
-          </button>
-        </div>
+        <span className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700">
+          {initialTrack === 'nckh' ? '🔬 Nhánh NCKH' : '⚙️ Nhánh Kỹ thuật'}
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-4">
-        {/* Form Inputs */}
-        <div className="lg:col-span-5 space-y-3 text-xs">
-          <div>
-            <label className="text-slate-700 font-medium block mb-1">
-              Đề tài mẫu gợi ý ({track === 'nckh' ? 'Nghiên cứu Khoa học' : 'Công nghệ Kỹ thuật'}):
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {track === 'nckh' ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPreset('water')}
-                    className={`p-2 rounded-lg border text-center transition font-medium ${
-                      selectedTopic === 'water'
-                        ? 'bg-blue-50 border-blue-600 text-blue-700'
-                        : 'bg-white border-slate-200 text-slate-700'
-                    }`}
-                  >
-                    Nước mặt
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPreset('sleep')}
-                    className={`p-2 rounded-lg border text-center transition font-medium ${
-                      selectedTopic === 'sleep'
-                        ? 'bg-blue-50 border-blue-600 text-blue-700'
-                        : 'bg-white border-slate-200 text-slate-700'
-                    }`}
-                  >
-                    Giấc ngủ
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPreset('herb')}
-                    className={`p-2 rounded-lg border text-center transition font-medium ${
-                      selectedTopic === 'herb'
-                        ? 'bg-blue-50 border-blue-600 text-blue-700'
-                        : 'bg-white border-slate-200 text-slate-700'
-                    }`}
-                  >
-                    Kháng khuẩn
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPreset('tree')}
-                    className={`p-2 rounded-lg border text-center transition font-medium ${
-                      selectedTopic === 'tree'
-                        ? 'bg-blue-50 border-blue-600 text-blue-700'
-                        : 'bg-white border-slate-200 text-slate-700'
-                    }`}
-                  >
-                    Vườn trường
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPreset('trash')}
-                    className={`p-2 rounded-lg border text-center transition font-medium ${
-                      selectedTopic === 'trash'
-                        ? 'bg-blue-50 border-blue-600 text-blue-700'
-                        : 'bg-white border-slate-200 text-slate-700'
-                    }`}
-                  >
-                    Thùng rác
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPreset('light')}
-                    className={`p-2 rounded-lg border text-center transition font-medium ${
-                      selectedTopic === 'light'
-                        ? 'bg-blue-50 border-blue-600 text-blue-700'
-                        : 'bg-white border-slate-200 text-slate-700'
-                    }`}
-                  >
-                    Đèn thông minh
-                  </button>
-                </>
-              )}
-            </div>
+      <div className="mt-4 grid gap-5 lg:grid-cols-12">
+        <div className="min-w-0 space-y-3 lg:col-span-5">
+          <div className="grid grid-cols-3 gap-2">
+            {PRESETS[initialTrack].map((preset, index) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => applyPreset(index)}
+                className={`rounded-lg border p-2 text-xs font-semibold transition ${selectedIndex === index ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
+              >
+                {preset.label}
+              </button>
+            ))}
           </div>
 
-          <div>
-            <label className="text-slate-700 font-medium block mb-1">
-              Tên đề tài của nhóm:
-            </label>
-            <input
-              type="text"
-              value={teamProjectName}
-              onChange={(e) => setTeamProjectName(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="text-slate-700 font-medium block mb-1">
-              {track === 'nckh' ? 'Số liệu mẫu & Biến số nghiên cứu:' : 'Thông số & Cảm biến phần cứng:'}
-            </label>
-            <input
-              type="text"
-              value={dataInputs}
-              onChange={(e) => setDataInputs(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="text-slate-700 font-medium block mb-1">
-              {track === 'nckh' ? 'Biểu đồ & Tiêu chuẩn so sánh:' : 'Tính năng điều khiển cho Giám khảo thử:'}
-            </label>
-            <input
-              type="text"
-              value={keyOutput}
-              onChange={(e) => setKeyOutput(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:bg-white"
-            />
-          </div>
+          <label className="block text-xs font-semibold text-slate-700">
+            Tên ứng dụng
+            <input value={projectName} onChange={event => setProjectName(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-xs font-normal text-slate-800 focus:border-blue-500 focus:outline-none" />
+          </label>
+          <label className="block text-xs font-semibold text-slate-700">
+            Dữ liệu có gì?
+            <input value={dataInput} onChange={event => setDataInput(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-xs font-normal text-slate-800 focus:border-blue-500 focus:outline-none" />
+          </label>
+          <label className="block text-xs font-semibold text-slate-700">
+            Ứng dụng cần làm gì?
+            <textarea value={features} onChange={event => setFeatures(event.target.value)} rows={3} className="mt-1 w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-xs font-normal leading-relaxed text-slate-800 focus:border-blue-500 focus:outline-none" />
+          </label>
         </div>
 
-        {/* Output Prompt */}
-        <div className="lg:col-span-7 bg-slate-50 rounded-xl border border-slate-200 p-3.5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 mb-2">
-              <span className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-slate-500" />
-                Câu lệnh đề xuất (Copy & Paste vào AI):
-              </span>
-              <button
-                onClick={handleCopy}
-                className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-md text-xs font-medium flex items-center gap-1 transition"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-3 h-3 text-emerald-600" /> Đã sao chép
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3 h-3 text-slate-500" /> Sao chép
-                  </>
-                )}
-              </button>
-            </div>
-
-            <pre className="text-xs text-slate-700 bg-white p-3 rounded-lg border border-slate-200 leading-relaxed font-mono whitespace-pre-wrap max-h-48 overflow-y-auto">
-              {generatedPrompt}
-            </pre>
+        <div className="min-w-0 flex flex-col rounded-xl border border-slate-200 bg-slate-50 p-3.5 lg:col-span-7">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700"><FileText className="h-3.5 w-3.5" /> Prompt để dán vào AI Studio</span>
+            <button type="button" onClick={handleCopy} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+              {copied ? <><Check className="h-3.5 w-3.5 text-emerald-600" /> Đã sao chép</> : <><Copy className="h-3.5 w-3.5" /> Sao chép</>}
+            </button>
           </div>
-
-          <p className="text-[11px] text-slate-500 mt-2">
-            Đội thi chỉ cần sao chép câu lệnh này và gửi cho AI trong buổi tập huấn để nhận mã nguồn phù hợp.
-          </p>
+          <pre className="mt-3 max-h-72 flex-1 overflow-y-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-700">{generatedPrompt}</pre>
         </div>
       </div>
     </div>

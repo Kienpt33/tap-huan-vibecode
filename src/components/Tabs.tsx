@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReadinessChecklistLab from './labs/ReadinessChecklistLab';
 import DeployConfigGeneratorLab from './labs/DeployConfigGeneratorLab';
 import TokenCalculatorLab from './labs/TokenCalculatorLab';
-import { Gamepad2, Wrench, FlaskConical, HelpCircle, LayoutDashboard, ArrowRight } from 'lucide-react';
+import { Gamepad2, Wrench, FlaskConical, HelpCircle, LayoutDashboard, Download } from 'lucide-react';
 import { CompetitionTrack } from '../types';
 
 interface TabProps {
-  onGoToCourse: () => void;
   onSelectLesson: (id: string) => void;
   selectedTrack?: CompetitionTrack;
-  onSelectTrack?: (track: CompetitionTrack) => void;
 }
 
-export function OverviewTab({ onGoToCourse, onSelectTrack, selectedTrack = 'nckh' }: TabProps) {
+export function OverviewTab() {
   return (
     <div className="bg-white rounded-3xl border border-slate-200/90 p-6 md:p-10 shadow-2xs space-y-6">
       <div>
@@ -21,69 +19,25 @@ export function OverviewTab({ onGoToCourse, onSelectTrack, selectedTrack = 'nckh
           <span>TỔNG QUAN TẬP HUẤN</span>
         </div>
         <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Cẩm Nang Khởi Động: Vibe Coding Sáng Tạo
+          Cẩm Nang Khởi Động Vibe Coding Có Kiểm Chứng
         </h1>
         <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-          Tài liệu đọc trước dành cho Thầy Cô và các Đội thi Khoa học Kỹ thuật & Nghiên cứu Khoa học.
+          Tài liệu đọc trước dành cho giáo viên và đội thi ở hai nhánh: nghiên cứu khoa học và giải pháp kỹ thuật.
         </p>
-      </div>
-
-      {/* Track Selection Prompt */}
-      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-        <h3 className="font-bold text-slate-900 text-sm">
-          Bước đầu tiên: Bạn tham gia bảng thi nào?
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <button
-            onClick={() => {
-              if (onSelectTrack) onSelectTrack('nckh');
-              onGoToCourse();
-            }}
-            className={`p-4 rounded-xl border text-left transition flex items-start gap-3 bg-white ${
-              selectedTrack === 'nckh' ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            <span className="text-2xl">🔬</span>
-            <div>
-              <strong className="text-slate-900 text-sm block font-bold">Bảng Nghiên Cứu Khoa Học (NCKH)</strong>
-              <span className="text-xs text-slate-500 mt-0.5 block leading-relaxed">
-                Đề tài kiểm định giả thuyết (Sinh, Hóa, Môi trường, Y học, Xã hội). Vibe Coding giúp phân tích số liệu thực nghiệm.
-              </span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => {
-              if (onSelectTrack) onSelectTrack('tech');
-              onGoToCourse();
-            }}
-            className={`p-4 rounded-xl border text-left transition flex items-start gap-3 bg-white ${
-              selectedTrack === 'tech' ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            <span className="text-2xl">⚙️</span>
-            <div>
-              <strong className="text-slate-900 text-sm block font-bold">Bảng Công Nghệ Kỹ Thuật (KHKT)</strong>
-              <span className="text-xs text-slate-500 mt-0.5 block leading-relaxed">
-                Đề tài chế tạo thiết bị, IoT, Robot, phần mềm giải pháp. Vibe Coding giúp xây dựng Dashboard điều khiển.
-              </span>
-            </div>
-          </button>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
           <h3 className="font-bold text-slate-900 text-sm mb-1">Mục tiêu cẩm nang</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Nắm vững 4 câu hỏi cốt lõi: Vibe coding & Token/API là gì, Ứng dụng cụ thể cho bảng thi, Thành phần cần chuẩn bị, và Quy trình Deploy lên môi trường thực tế.
+            Hiểu vai trò và giới hạn của AI, chuẩn bị dữ liệu/hệ thống, viết đặc tả có thể kiểm chứng và xuất bản an toàn.
           </p>
         </div>
 
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-          <h3 className="font-bold text-slate-900 text-sm mb-1">Không yêu cầu API key</h3>
+          <h3 className="font-bold text-slate-900 text-sm mb-1">Mô phỏng không dùng API key</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Học sinh và giáo viên chỉ cần nắm bản chất cách kết nối, không phải tự mua hay nhập bất kỳ mã khóa kỹ thuật nào.
+            Công cụ trong cẩm nang không gửi yêu cầu AI thật. Sản phẩm thật có thể cần xác thực; không đặt khóa bí mật trong mã frontend.
           </p>
         </div>
       </div>
@@ -91,30 +45,34 @@ export function OverviewTab({ onGoToCourse, onSelectTrack, selectedTrack = 'nckh
   );
 }
 
-export function TemplatesTab({ onSelectLesson }: TabProps) {
-  const [filter, setFilter] = useState<'all' | 'nckh' | 'tech'>('all');
-
+export function TemplatesTab({ onSelectLesson, selectedTrack = 'nckh' }: TabProps) {
   const templates = [
     {
-      title: 'Đánh giá chất lượng nước sinh hoạt địa phương',
-      desc: 'Phân tích chỉ số pH, DO, độ đục và tự động đối chiếu với quy chuẩn nước mặt QCVN.',
+      title: 'Khảo sát chất lượng nước mặt địa phương',
+      desc: 'Phân tích pH, DO, độ đục và đối chiếu đúng nhóm mục đích sử dụng trong QCVN 08:2023/BTNMT.',
       lessonId: 'nckh-3',
       track: 'nckh',
       badge: 'NCKH Môi trường',
+      fileName: 'mau-nuoc-mat.csv',
+      csv: 'ngay,tram,pH,DO_mg_L,do_duc_NTU\n2026-09-01,A,7.2,5.8,12\n2026-09-01,B,6.9,5.1,18\n2026-09-02,A,7.1,5.6,14',
     },
     {
-      title: 'Khảo sát ánh sáng xanh và giấc ngủ học sinh',
-      desc: 'Xử lý số liệu 120 phiếu điều tra, vẽ biểu đồ tương quan và tính toán độ tin cậy.',
+      title: 'Khảo sát thời gian dùng màn hình và giấc ngủ',
+      desc: 'Xử lý dữ liệu ẩn danh, vẽ tương quan và trình bày giới hạn của dữ liệu tự báo cáo; không suy diễn quan hệ nhân quả.',
       lessonId: 'nckh-3',
       track: 'nckh',
       badge: 'NCKH Hành vi',
+      fileName: 'mau-giac-ngu-an-danh.csv',
+      csv: 'ma_an_danh,gio_man_hinh,gio_ngu,diem_tap_trung\nHS001,2.5,8,8\nHS002,4,6.5,6\nHS003,1.5,8.5,9',
     },
     {
       title: 'Nghiên cứu hoạt tính kháng khuẩn thảo mộc',
-      desc: 'So sánh đường kính vòng vô khuẩn qua các nồng độ dung dịch chiết xuất tự nhiên.',
+      desc: 'So sánh dữ liệu vòng vô khuẩn mô phỏng; thí nghiệm vi sinh thật chỉ thực hiện trong phòng lab có người phụ trách.',
       lessonId: 'nckh-3',
       track: 'nckh',
       badge: 'NCKH Y sinh',
+      fileName: 'mau-vong-khang-khuan.csv',
+      csv: 'nhom,nong_do_phan_tram,lan_lap,duong_kinh_mm\ndoi_chung,0,1,0\ndich_chiet,25,1,8.2\ndich_chiet,25,2,8.0',
     },
     {
       title: 'Hệ thống tưới cây tự động vườn trường',
@@ -122,6 +80,8 @@ export function TemplatesTab({ onSelectLesson }: TabProps) {
       lessonId: 'tech-3',
       track: 'tech',
       badge: 'Kỹ thuật IoT',
+      fileName: 'mau-cam-bien-do-am.csv',
+      csv: 'thoi_gian,do_am_dat_phan_tram,nhiet_do_C,trang_thai_bom\n08:00,42,29,tat\n09:00,35,31,tat\n10:00,28,33,bat',
     },
     {
       title: 'Thùng rác phân loại thông minh',
@@ -129,17 +89,31 @@ export function TemplatesTab({ onSelectLesson }: TabProps) {
       lessonId: 'tech-3',
       track: 'tech',
       badge: 'Kỹ thuật Môi trường',
+      fileName: 'mau-thung-rac.csv',
+      csv: 'thoi_gian,khoang_cach_cm,muc_day_phan_tram,loai_rac\n08:00,48,20,tai_che\n09:00,30,50,huu_co\n10:00,12,80,tai_che',
     },
     {
       title: 'Hệ thống đèn học bảo vệ mắt',
-      desc: 'Đo cường độ ánh sáng bàn học và cảnh báo tư thế cúi gần để chống tật khúc xạ.',
+      desc: 'Đo cường độ ánh sáng và khoảng cách ngồi; cảnh báo tư thế theo ngưỡng do đội thi xác định và kiểm chứng.',
       lessonId: 'tech-3',
       track: 'tech',
-      badge: 'Kỹ thuật Y tế',
+      badge: 'Kỹ thuật Hỗ trợ học tập',
+      fileName: 'mau-den-hoc.csv',
+      csv: 'thoi_gian,do_sang_lux,khoang_cach_cm,muc_den\n19:00,280,35,60\n19:10,180,24,85\n19:20,320,38,45',
     },
   ];
 
-  const filtered = templates.filter(t => filter === 'all' || t.track === filter);
+  const filtered = templates.filter(t => t.track === selectedTrack);
+
+  const downloadCsv = (fileName: string, csv: string) => {
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200/90 p-6 md:p-10 shadow-2xs space-y-6">
@@ -150,40 +124,16 @@ export function TemplatesTab({ onSelectLesson }: TabProps) {
             <span>THƯ VIỆN ĐỀ TÀI MẪU</span>
           </div>
           <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Mẫu Ý Tưởng Cho Cả 2 Bảng Thi
+            Ý Tưởng Khởi Động Cho {selectedTrack === 'nckh' ? 'Nhánh NCKH' : 'Nhánh Kỹ Thuật'}
           </h1>
           <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-            Xem các ví dụ đề tài tiêu biểu của Bảng Nghiên cứu Khoa học và Bảng Công nghệ Kỹ thuật.
+            Nội dung đã được lọc theo nhánh bạn chọn; mỗi ý tưởng cần tiêu chí kiểm chứng và giới hạn an toàn riêng.
           </p>
         </div>
 
-        {/* Filter buttons */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition ${
-              filter === 'all' ? 'bg-white text-blue-700 shadow-2xs' : 'text-slate-600'
-            }`}
-          >
-            Tất cả
-          </button>
-          <button
-            onClick={() => setFilter('nckh')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition ${
-              filter === 'nckh' ? 'bg-white text-blue-700 shadow-2xs' : 'text-slate-600'
-            }`}
-          >
-            🔬 Bảng NCKH
-          </button>
-          <button
-            onClick={() => setFilter('tech')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition ${
-              filter === 'tech' ? 'bg-white text-blue-700 shadow-2xs' : 'text-slate-600'
-            }`}
-          >
-            ⚙️ Bảng Kỹ Thuật
-          </button>
-        </div>
+        <span className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700">
+          {selectedTrack === 'nckh' ? '🔬 Nhánh NCKH' : '⚙️ Nhánh Kỹ thuật'}
+        </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -200,12 +150,20 @@ export function TemplatesTab({ onSelectLesson }: TabProps) {
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">{tpl.desc}</p>
             </div>
 
-            <button
-              onClick={() => onSelectLesson(tpl.lessonId)}
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 pt-3 border-t border-slate-100"
-            >
-              Xem lộ trình bài học →
-            </button>
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <button
+                onClick={() => onSelectLesson(tpl.lessonId)}
+                className="text-xs font-bold text-blue-600 hover:text-blue-700"
+              >
+                Mở bài thực hành →
+              </button>
+              <button
+                onClick={() => downloadCsv(tpl.fileName, tpl.csv)}
+                className="text-[11px] font-semibold text-slate-600 hover:text-blue-700 flex items-center gap-1"
+              >
+                <Download className="w-3.5 h-3.5" /> CSV mẫu
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -213,7 +171,7 @@ export function TemplatesTab({ onSelectLesson }: TabProps) {
   );
 }
 
-export function ReadinessTab() {
+export function ReadinessTab({ selectedTrack = 'nckh' }: Pick<TabProps, 'selectedTrack'>) {
   return (
     <div className="bg-white rounded-3xl border border-slate-200/90 p-6 md:p-10 shadow-2xs space-y-6">
       <div>
@@ -222,19 +180,19 @@ export function ReadinessTab() {
           <span>HÀNH TRANG CHUẨN BỊ</span>
         </div>
         <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Nâng Cấp & Chuẩn Bị Cho Buổi Tập Huấn
+          Kiểm Tra Sẵn Sàng Trước Buổi Tập Huấn
         </h1>
         <p className="text-sm text-slate-600 mt-2 leading-relaxed">
           Tự kiểm tra các tiêu chí sẵn sàng để buổi học thực hành diễn ra thuận lợi nhất.
         </p>
       </div>
 
-      <ReadinessChecklistLab />
+      <ReadinessChecklistLab track={selectedTrack} />
     </div>
   );
 }
 
-export function LabsTab() {
+export function LabsTab({ selectedTrack = 'nckh' }: Pick<TabProps, 'selectedTrack'>) {
   return (
     <div className="bg-white rounded-3xl border border-slate-200/90 p-6 md:p-10 shadow-2xs space-y-6">
       <div>
@@ -246,7 +204,7 @@ export function LabsTab() {
           Công Cụ Thử Nghiệm Trực Quan
         </h1>
         <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-          Trực tiếp trải nghiệm tính toán Token, mô phỏng cầu nối API và tạo mã QR xuất bản sản phẩm.
+          Ước lượng Token, quan sát mô phỏng API và tạo QR có cảnh báo quyền riêng tư.
         </p>
       </div>
 
@@ -260,19 +218,27 @@ export function HelpTab() {
   const faqs = [
     {
       q: '1. Vibe coding là gì? Token và API là gì?',
-      a: 'Vibe coding là cách lập trình bằng ngôn ngữ tự nhiên: bạn mô tả ý tưởng và dữ liệu, AI viết mã nguồn. Token là các mẩu đơn vị ngôn ngữ mà AI đếm để xử lý văn bản. API là cầu nối truyền nhận dữ liệu giữa ứng dụng của bạn và máy chủ AI (bạn không cần phải tự nhập hay mua API key).',
+      a: 'Vibe coding là quy trình dùng ngôn ngữ tự nhiên để hỗ trợ tạo và sửa mã. Token là đơn vị mã hóa đầu vào/đầu ra của mô hình AI, không phải gói dữ liệu cảm biến. API là giao diện trao đổi giữa phần mềm; ứng dụng thật có thể cần khóa hoặc cơ chế xác thực.',
     },
     {
-      q: '2. Ứng dụng Vibe coding cho Bảng NCKH và Bảng KHKT khác nhau như thế nào?',
-      a: 'Bảng NCKH: Dùng Vibe coding để lập trình trang web phân tích số liệu thực nghiệm, tính toán thống kê và vẽ biểu đồ tương quan. Bảng Công nghệ Kỹ thuật: Dùng Vibe coding để làm Dashboard điều khiển thiết bị phần cứng, hiển thị cảm biến và tạo nút bấm kiểm thử sự cố cho Giám khảo thử.',
+      q: '2. Hai nhánh học khác nhau như thế nào?',
+      a: 'Nhánh NCKH tập trung vào dữ liệu, phương pháp phân tích, sai số và khả năng tái lập. Nhánh Giải pháp Kỹ thuật tập trung vào luồng tín hiệu, trạng thái thiết bị, giao thức, xác thực và an toàn khi điều khiển.',
     },
     {
       q: '3. Cần chuẩn bị những gì trước buổi tập huấn?',
-      a: 'NCKH: Bản tóm tắt giả thuyết và 1 bảng số liệu đo đạc thực nghiệm mẫu (CSV/Excel). KHKT: Sơ đồ khối thiết bị phần cứng và bảng thông số ngưỡng cảm biến đo lường.',
+      a: 'NCKH: câu hỏi nghiên cứu, từ điển dữ liệu, dữ liệu đã ẩn danh, phương pháp và nguồn chuẩn. Kỹ thuật: sơ đồ khối, giao thức, ngưỡng an toàn, trạng thái mất mạng và nút dừng vật lý. Cả hai cần tiêu chí nghiệm thu.',
     },
     {
       q: '4. Deploy sản phẩm lên môi trường thực tế nghĩa là gì?',
-      a: 'Đưa ứng dụng từ máy tính lên mạng Internet qua các dịch vụ miễn phí như Vercel để có link HTTPS và in mã QR dán lên poster báo cáo hoặc dán trực tiếp lên thiết bị kỹ thuật để Ban Giám Khảo quét điện thoại thử nghiệm.',
+      a: 'Deploy là đưa bản build lên dịch vụ hosting. Gói miễn phí có hạn mức và điều khoản. QR chỉ mở URL; nó không tự kết nối phần cứng, tạo quyền truy cập hoặc bảo vệ dữ liệu.',
+    },
+    {
+      q: '5. Có được đưa dữ liệu học sinh hoặc khóa truy cập vào AI không?',
+      a: 'Không đưa tên, email, mã học sinh, dữ liệu sức khỏe, Wi‑Fi password hoặc API key vào prompt hay mã công khai. Hãy ẩn danh dữ liệu, xin đồng thuận phù hợp và chỉ chia sẻ phần tối thiểu cần thiết.',
+    },
+    {
+      q: '6. Nếu sản phẩm không chạy tại nơi thi thì sao?',
+      a: 'Chuẩn bị bản mô phỏng offline, video ngắn, ảnh chụp log và dữ liệu mẫu. Với thiết bị, ưu tiên trạng thái an toàn khi mất mạng và luôn có cách dừng bằng phần cứng.',
     },
   ];
 
@@ -284,10 +250,10 @@ export function HelpTab() {
           <span>HỎI ĐÁP & HỖ TRỢ</span>
         </div>
         <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Giải Đáp 4 Câu Hỏi Cốt Lõi Cho 2 Bảng Thi
+          Giải Đáp Nhanh Trước Khi Thực Hành
         </h1>
         <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-          Tóm tắt câu trả lời cho các thắc mắc chung về NCKH và Công nghệ Kỹ thuật.
+          Tóm tắt các khái niệm, giới hạn, quyền riêng tư và phương án dự phòng cho hai nhánh.
         </p>
       </div>
 
@@ -298,6 +264,14 @@ export function HelpTab() {
             <p className="text-xs text-slate-600 leading-relaxed">{faq.a}</p>
           </div>
         ))}
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
+        <strong className="text-slate-800">Nguồn nền tảng:</strong>{' '}
+        <a className="text-blue-700 hover:underline" href="https://owasp.org/API-Security/" target="_blank" rel="noreferrer">OWASP API Security</a>,{' '}
+        <a className="text-blue-700 hover:underline" href="https://vercel.com/docs/plans/hobby" target="_blank" rel="noreferrer">Vercel Hobby Plan</a>,{' '}
+        <a className="text-blue-700 hover:underline" href="https://vanban.chinhphu.vn/?classid=1&docid=207647&pageid=27160&typegroupid=6" target="_blank" rel="noreferrer">Thông tư 01/2023/TT-BTNMT</a>.
+        <span className="block mt-1 text-slate-500">Nội dung rà soát ngày 27/10/2026. Khi dùng quy chuẩn hoặc dịch vụ bên thứ ba, hãy kiểm tra phiên bản hiện hành.</span>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CheckCircle2, Circle } from 'lucide-react';
+import { CompetitionTrack } from '../../types';
 
 interface PreFlightItem {
   id: string;
@@ -7,7 +8,7 @@ interface PreFlightItem {
   desc: string;
 }
 
-const PRE_FLIGHT_ITEMS: PreFlightItem[] = [
+const COMMON_ITEMS: PreFlightItem[] = [
   {
     id: 'c-1',
     title: 'Ý tưởng và bài toán mục tiêu',
@@ -15,8 +16,8 @@ const PRE_FLIGHT_ITEMS: PreFlightItem[] = [
   },
   {
     id: 'c-2',
-    title: 'Dữ liệu đo đạc thực nghiệm mẫu',
-    desc: 'Chuẩn bị sẵn một số dòng số liệu mẫu để kiểm thử biểu đồ trực quan.'
+    title: 'Tiêu chí kiểm chứng sản phẩm',
+    desc: 'Viết trước kết quả nào được xem là đúng và cách kiểm tra kết quả đó.'
   },
   {
     id: 'c-3',
@@ -25,8 +26,8 @@ const PRE_FLIGHT_ITEMS: PreFlightItem[] = [
   },
   {
     id: 'c-4',
-    title: 'Hiểu biết về bảo mật API Key',
-    desc: 'Nắm được nguyên tắc giữ an toàn mã khóa định danh cá nhân.'
+    title: 'Bảo vệ tài khoản và khóa truy cập',
+    desc: 'Không dán khóa bí mật vào mã nguồn hoặc chia sẻ trong ảnh chụp màn hình.'
   },
   {
     id: 'c-5',
@@ -40,8 +41,46 @@ const PRE_FLIGHT_ITEMS: PreFlightItem[] = [
   }
 ];
 
-export default function ReadinessChecklistLab() {
-  const [checkedIds, setCheckedIds] = useState<string[]>(['c-1', 'c-3', 'c-6']);
+const TRACK_ITEMS: Record<CompetitionTrack, PreFlightItem[]> = {
+  nckh: [
+    {
+      id: 'n-1',
+      title: 'Dữ liệu mẫu và từ điển dữ liệu',
+      desc: 'Có 10–20 dòng mẫu, tên cột, đơn vị đo và cách xử lý giá trị thiếu.'
+    },
+    {
+      id: 'n-2',
+      title: 'Đồng thuận và ẩn danh dữ liệu',
+      desc: 'Đã bỏ thông tin định danh; có sự đồng thuận khi khảo sát con người.'
+    },
+    {
+      id: 'n-3',
+      title: 'Phương pháp phân tích và nguồn chuẩn',
+      desc: 'Xác định phép tính, giả định thống kê và phiên bản quy chuẩn sử dụng.'
+    }
+  ],
+  tech: [
+    {
+      id: 't-1',
+      title: 'Sơ đồ khối và giao thức kết nối',
+      desc: 'Ghi rõ cảm biến, bộ xử lý, cơ cấu chấp hành và HTTP/MQTT/WebSocket nếu có.'
+    },
+    {
+      id: 't-2',
+      title: 'Ngưỡng an toàn và dừng khẩn cấp',
+      desc: 'Có giới hạn điều khiển, nút dừng vật lý và trạng thái an toàn khi mất mạng.'
+    },
+    {
+      id: 't-3',
+      title: 'Kịch bản thử nghiệm có giám sát',
+      desc: 'Chỉ mô phỏng lỗi an toàn; không cho liên kết công khai điều khiển tải nguy hiểm.'
+    }
+  ]
+};
+
+export default function ReadinessChecklistLab({ track = 'nckh' }: { track?: CompetitionTrack }) {
+  const [checkedIds, setCheckedIds] = useState<string[]>([]);
+  const items = [...TRACK_ITEMS[track], ...COMMON_ITEMS];
 
   const toggleItem = (id: string) => {
     setCheckedIds(prev =>
@@ -49,7 +88,7 @@ export default function ReadinessChecklistLab() {
     );
   };
 
-  const percentage = Math.round((checkedIds.length / PRE_FLIGHT_ITEMS.length) * 100);
+  const percentage = Math.round((checkedIds.length / items.length) * 100);
 
   return (
     <div className="bg-white rounded-xl p-5 border border-slate-200 my-6 shadow-2xs">
@@ -59,12 +98,12 @@ export default function ReadinessChecklistLab() {
             Bảng kiểm tra độ sẵn sàng trước buổi tập huấn
           </h4>
           <p className="text-xs text-slate-500 mt-0.5">
-            Đánh dấu các tiêu chí mà đội thi của bạn đã chuẩn bị
+            Danh sách thay đổi theo nhánh học; trạng thái ban đầu để trống để bạn tự xác nhận
           </p>
         </div>
 
         <div className="text-xs font-medium text-slate-600">
-          Đạt: <span className="font-bold text-blue-600">{checkedIds.length}/{PRE_FLIGHT_ITEMS.length}</span> ({percentage}%)
+          Đạt: <span className="font-bold text-blue-600">{checkedIds.length}/{items.length}</span> ({percentage}%)
         </div>
       </div>
 
@@ -76,7 +115,7 @@ export default function ReadinessChecklistLab() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-3">
-        {PRE_FLIGHT_ITEMS.map((item) => {
+        {items.map((item) => {
           const isDone = checkedIds.includes(item.id);
           return (
             <div

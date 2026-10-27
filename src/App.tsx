@@ -3,16 +3,17 @@ import { LESSONS_NCKH, LESSONS_TECH } from './data/courseData';
 import { CompetitionTrack } from './types';
 import Navbar from './components/Navbar';
 import LeftSidebar, { NavTab } from './components/LeftSidebar';
-import RightSidebar from './components/RightSidebar';
 import RoadmapGrid from './components/RoadmapGrid';
 import LessonDetailView from './components/LessonDetailView';
 import PromptStudioTab from './components/PromptStudioTab';
-import { OverviewTab, TemplatesTab, ReadinessTab, LabsTab, HelpTab } from './components/Tabs';
+import TrackSelectionScreen from './components/TrackSelectionScreen';
+import SupportTab from './components/SupportTab';
 
-const STORAGE_KEY = 'vibe_coding_roadmap_progress_v5';
+const STORAGE_KEY = 'vibe_coding_roadmap_progress_v7';
 const TRACK_STORAGE_KEY = 'vibe_coding_selected_track_v1';
 
 export default function App() {
+  const [hasChosenTrack, setHasChosenTrack] = useState(false);
   const [activeTab, setActiveTab] = useState<NavTab>('course');
   const [selectedTrack, setSelectedTrack] = useState<CompetitionTrack>(() => {
     try {
@@ -32,7 +33,7 @@ export default function App() {
     } catch (e) {
       console.error(e);
     }
-    return ['nckh-1'];
+    return [];
   });
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -57,6 +58,16 @@ export default function App() {
   const handleSelectTrack = (track: CompetitionTrack) => {
     setSelectedTrack(track);
     setSelectedLessonId(null);
+    setActiveTab('course');
+    setHasChosenTrack(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleChangeTrack = () => {
+    setSelectedLessonId(null);
+    setIsMobileMenuOpen(false);
+    setHasChosenTrack(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSelectLesson = (lessonId: string) => {
@@ -122,7 +133,6 @@ export default function App() {
       return (
         <RoadmapGrid
           selectedTrack={selectedTrack}
-          onSelectTrack={handleSelectTrack}
           lessons={currentLessons}
           onSelectLesson={handleSelectLesson}
         />
@@ -130,85 +140,50 @@ export default function App() {
     }
 
     if (activeTab === 'prompt') {
-      return <PromptStudioTab />;
-    }
-
-    if (activeTab === 'templates') {
-      return (
-        <TemplatesTab
-          onGoToCourse={() => {
-            setActiveTab('course');
-            setSelectedLessonId(null);
-          }}
-          onSelectLesson={handleSelectLesson}
-          selectedTrack={selectedTrack}
-          onSelectTrack={handleSelectTrack}
-        />
-      );
-    }
-
-    if (activeTab === 'readiness') {
-      return <ReadinessTab />;
-    }
-
-    if (activeTab === 'labs') {
-      return <LabsTab />;
+      return <PromptStudioTab selectedTrack={selectedTrack} />;
     }
 
     if (activeTab === 'help') {
-      return <HelpTab />;
+      return <SupportTab />;
     }
 
-    // Default: Overview
-    return (
-      <OverviewTab
-        onGoToCourse={() => {
-          setActiveTab('course');
-          setSelectedLessonId(null);
-        }}
-        onSelectLesson={handleSelectLesson}
-        selectedTrack={selectedTrack}
-        onSelectTrack={handleSelectTrack}
-      />
-    );
+    return <SupportTab />;
   };
 
-  return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
-      {/* Top Navbar */}
-      <Navbar
-        onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
-        selectedTrack={selectedTrack}
-        onSelectTrack={handleSelectTrack}
-      />
+  if (!hasChosenTrack) {
+    return <TrackSelectionScreen onSelect={handleSelectTrack} />;
+  }
 
-      {/* Main App Layout */}
-      <div className="flex-1 flex max-w-[1550px] w-full mx-auto">
+  return (
+    <div className="min-h-screen overflow-x-clip bg-[#f8fafc] font-sans text-slate-800 selection:bg-blue-100 selection:text-blue-900">
+      <div className="mx-auto flex min-h-screen w-full min-w-0 max-w-[1550px]">
         {/* Left Sidebar */}
         <LeftSidebar
           activeTab={activeTab}
+          selectedTrack={selectedTrack}
+          onChangeTrack={handleChangeTrack}
           onSelectTab={(tab) => {
             setActiveTab(tab);
             setSelectedLessonId(null);
           }}
           isOpenMobile={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
-          onOpenPractice={() => {
-            setActiveTab('prompt');
-            setSelectedLessonId(null);
-          }}
         />
 
-        {/* Center Dynamic Content Area */}
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
-          {renderMainContent()}
-        </main>
+        <div className="flex w-full min-w-0 max-w-full flex-1 flex-col overflow-hidden">
+          <Navbar
+            onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
+          />
 
-        {/* Right Sidebar (Active Track Overview & Community Stats) */}
-        <RightSidebar
-          selectedTrack={selectedTrack}
-          onSelectTrack={handleSelectTrack}
-        />
+          {/* Center Dynamic Content Area */}
+          <main className="w-full min-w-0 max-w-full flex-1 overflow-x-hidden p-[16px] lg:p-[24px]">
+            {renderMainContent()}
+          </main>
+
+          <footer className="border-t border-slate-200 bg-white px-4 py-3 text-center text-[11px] leading-relaxed text-slate-500">
+            VibeLab · Tài liệu giáo dục, không thay thế tư vấn chuyên môn hoặc quy trình an toàn đã được phê duyệt · Rà soát 27/10/2026
+          </footer>
+        </div>
       </div>
     </div>
   );

@@ -25,3 +25,29 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* The roadmap responds to the content column, not the full viewport width. */
+.roadmap-shell {
+  container-name: roadmap;
+  container-type: inline-size;
+}
+
+@container roadmap (min-width: 720px) {
+  .roadmap-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container roadmap (min-width: 1080px) {
+  .roadmap-cards {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .roadmap-card-top {
+    grid-column: span 2 / span 2;
+  }
+
+  .roadmap-card-bottom {
+    grid-column: span 3 / span 3;
+  }
+}

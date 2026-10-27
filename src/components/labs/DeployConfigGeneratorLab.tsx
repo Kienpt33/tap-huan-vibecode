@@ -5,7 +5,17 @@ export default function DeployConfigGeneratorLab() {
   const [sampleProjectUrl, setSampleProjectUrl] = useState('https://sang-tao-khkt.vercel.app');
   const [copied, setCopied] = useState(false);
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(sampleProjectUrl)}&bgcolor=ffffff&color=0f172a`;
+  const isValidUrl = (() => {
+    try {
+      const parsed = new URL(sampleProjectUrl);
+      return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+    } catch {
+      return false;
+    }
+  })();
+  const qrCodeUrl = isValidUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(sampleProjectUrl)}&bgcolor=ffffff&color=0f172a`
+    : '';
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(sampleProjectUrl);
@@ -26,6 +36,21 @@ export default function DeployConfigGeneratorLab() {
         </div>
       </div>
 
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mt-4 text-[11px]">
+        {[
+          ['01', 'Build', 'Chạy build và sửa toàn bộ lỗi.'],
+          ['02', 'Bảo mật', 'Đặt khóa ở biến môi trường, không ở frontend.'],
+          ['03', 'Deploy', 'Chọn gói phù hợp và kiểm tra hạn mức.'],
+          ['04', 'Kiểm tra', 'Mở trên máy khác; chuẩn bị bản offline.'],
+        ].map(([number, title, description]) => (
+          <div key={number} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <span className="font-mono font-bold text-blue-600">{number}</span>
+            <strong className="ml-1.5 text-slate-800">{title}</strong>
+            <p className="mt-1 leading-relaxed text-slate-500">{description}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-4 items-center">
         <div className="lg:col-span-7 space-y-3">
           <p className="text-xs text-slate-600 leading-relaxed">
@@ -38,7 +63,7 @@ export default function DeployConfigGeneratorLab() {
             </label>
             <div className="flex items-center gap-2">
               <input
-                type="text"
+                type="url"
                 value={sampleProjectUrl}
                 onChange={(e) => setSampleProjectUrl(e.target.value)}
                 className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-blue-600 focus:bg-white"
@@ -46,16 +71,21 @@ export default function DeployConfigGeneratorLab() {
               />
               <button
                 onClick={handleCopyLink}
-                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-lg text-xs font-medium transition flex items-center gap-1 shrink-0"
+                disabled={!isValidUrl}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 border border-slate-300 text-slate-700 rounded-lg text-xs font-medium transition flex items-center gap-1 shrink-0"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : 'Sao chép'}
               </button>
             </div>
           </div>
 
-          <p className="text-[11px] text-slate-500">
-            Quy trình xuất bản tự động qua Vercel hoặc Netlify sẽ được hướng dẫn chi tiết trong buổi tập huấn.
-          </p>
+          {!isValidUrl && (
+            <p className="text-[11px] text-rose-600">Hãy nhập liên kết bắt đầu bằng http:// hoặc https://.</p>
+          )}
+
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[11px] leading-relaxed text-amber-900">
+            Ảnh QR được tạo bởi dịch vụ bên thứ ba qrserver.com; liên kết bạn nhập sẽ được gửi tới dịch vụ này. Không nhập URL chứa token hoặc thông tin bí mật.
+          </div>
         </div>
 
         <div className="lg:col-span-5 bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col items-center justify-center text-center">
@@ -65,16 +95,20 @@ export default function DeployConfigGeneratorLab() {
           </span>
 
           <div className="p-2 bg-white rounded-lg border border-slate-200 shadow-2xs">
-            <img
-              src={qrCodeUrl}
-              alt="Mã QR dự thi"
-              className="w-32 h-32 object-contain block"
-              loading="lazy"
-            />
+            {isValidUrl ? (
+              <img
+                src={qrCodeUrl}
+                alt="Mã QR mở liên kết sản phẩm"
+                className="w-32 h-32 object-contain block"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-32 h-32 grid place-items-center text-[11px] text-slate-400">Chưa có QR hợp lệ</div>
+            )}
           </div>
 
           <span className="text-[11px] text-slate-500 mt-2">
-            Quét mã để kiểm tra liên kết thực tế
+            QR chỉ mở liên kết; không tự tạo kết nối hoặc quyền điều khiển thiết bị
           </span>
         </div>
       </div>
