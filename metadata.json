@@ -1,0 +1,6 @@
+{
+  "name": "Cẩm Nang Khởi Động: Vibe Coding & Sáng Tạo KHKT (Trước Buổi Tập Huấn)",
+  "description": "Tài liệu trực quan, dễ hiểu đọc trước buổi tập huấn dành cho Thầy Cô và Học sinh Tiểu học & THCS tham gia các bảng thi Sáng tạo Khoa học Kỹ thuật.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
